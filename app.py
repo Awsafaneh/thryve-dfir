@@ -20,7 +20,7 @@ import urllib.request
 import urllib.error
 import shutil
 import math
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -43,6 +43,36 @@ DB = Database(DATA / "aegis.db")
 CONFIG: dict[str, Any] = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
 DB.seed_rules(json.loads(RULES_PATH.read_text(encoding="utf-8")))
 COLLECTION_LOCK = threading.Lock()
+
+
+def seed_demo_data() -> None:
+    """Create clearly synthetic, repeatable showcase telemetry for Cloud Run demos."""
+    if os.environ.get("THRYVE_DEMO_DATA", "").lower() not in {"1", "true", "yes"}:
+        return
+    host = "AWS-ANALYST-01"
+    user = "AWS\\analyst"
+    now = datetime.now(UTC).replace(microsecond=0)
+    samples = [
+        ("windows_event", "windows_event", "Security 7045: service installed: TelemetrySync", "high", {"event_id": "7045", "channel": "System", "provider": "Service Control Manager", "service_name": "TelemetrySync", "account": "LocalSystem", "user": user}),
+        ("windows_event", "windows_event", "Security 4698: scheduled task created: UpdateHealth", "high", {"event_id": "4698", "channel": "Security", "provider": "Microsoft-Windows-Security-Auditing", "task_name": "\\UpdateHealth", "user": user}),
+        ("windows_event", "windows_event", "Security 4624: successful interactive logon", "info", {"event_id": "4624", "channel": "Security", "provider": "Microsoft-Windows-Security-Auditing", "logon_type": "2", "user": user}),
+        ("process", "process", "powershell.exe -EncodedCommand observed", "high", {"name": "powershell.exe", "pid": 2844, "ppid": 912, "user": user, "command_line": "powershell.exe -NoProfile -EncodedCommand <synthetic-demo-payload>", "executable_path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "signed": True}),
+        ("process", "process", "rundll32.exe launched from Downloads", "high", {"name": "rundll32.exe", "pid": 3116, "ppid": 2844, "user": user, "command_line": "rundll32.exe C:\\Users\\analyst\\Downloads\\report-viewer.dll,Start", "executable_path": "C:\\Users\\analyst\\Downloads\\rundll32.exe", "signed": True}),
+        ("network", "network", "Established connection to rare destination", "medium", {"protocol": "TCP", "local_address": "10.20.4.18:53122", "remote_address": "198.51.100.44:4444", "remote_port": "4444", "state": "ESTABLISHED", "process": "rundll32.exe", "pid": 3116, "user": user}),
+        ("persistence", "persistence", "Automatic service points to AppData", "high", {"persistence_type": "service", "name": "TelemetrySync", "command": "C:\\Users\\analyst\\AppData\\Local\\TelemetrySync\\sync.exe --service", "user": user, "status": "auto-start"}),
+        ("windows_event", "windows_event", "Defender 1116: synthetic malware detection", "critical", {"event_id": "1116", "channel": "Microsoft-Windows-Windows Defender/Operational", "provider": "Microsoft-Windows-Windows Defender", "threat_name": "Demo.Test.Detection", "user": user}),
+    ]
+    events = []
+    for index, (source, event_type, message, severity, data) in enumerate(samples):
+        data = {**data, "demo": True, "dataset": "THRYVE_SYNTHETIC_SHOWCASE", "host": host}
+        events.append({"timestamp": (now - timedelta(minutes=index * 7)).isoformat(), "source": source, "event_type": event_type, "severity": severity, "host": host, "message": f"[DEMO DATA] {message}", "data": data})
+    inserted = DB.insert_events(events)
+    alerts = evaluate(inserted, DB.enabled_rules())
+    if alerts:
+        DB.insert_alerts(alerts)
+
+
+seed_demo_data()
 
 
 def is_admin() -> bool:
