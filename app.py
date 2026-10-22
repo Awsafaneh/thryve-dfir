@@ -676,10 +676,12 @@ class AegisHandler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
-    host = str(CONFIG.get("bind", "127.0.0.1"))
-    port = int(CONFIG.get("port", 8765))
-    if host not in {"127.0.0.1", "localhost", "::1"}:
-        raise SystemExit("Refusing non-local bind. Change the code only after adding authentication and TLS.")
+    # Cloud Run supplies PORT and requires a public container listener. Local
+    # Windows runs remain loopback-only unless HOST is explicitly provided.
+    host = os.environ.get("HOST", str(CONFIG.get("bind", "127.0.0.1")))
+    port = int(os.environ.get("PORT", CONFIG.get("port", 8765)))
+    if host not in {"127.0.0.1", "localhost", "::1", "0.0.0.0"}:
+        raise SystemExit("Unsupported bind address.")
     server = ThreadingHTTPServer((host, port), AegisHandler)
     url = f"http://{host}:{port}/"
     print(f"Thryve {__version__} running at {url}")
