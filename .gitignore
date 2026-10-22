@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+data/*.db
+data/*.db-shm
+data/*.db-wal
+exports/
+tmp/
+qa/
+output/
+.venv/
+venv/
+dist/
+build/
+*.log

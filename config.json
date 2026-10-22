@@ -1,0 +1,10 @@
+{
+  "bind": "127.0.0.1",
+  "port": 8765,
+  "event_lookback_hours": 24,
+  "max_events_per_log": 250,
+  "max_table_rows": 500,
+  "file_scan_roots": [],
+  "file_scan_max_files": 2000,
+  "file_scan_max_bytes": 52428800
+}

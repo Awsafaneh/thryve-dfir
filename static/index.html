@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#ffffff">
+  <title>Thryve | SOC Console</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Skip to content</a>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
+      <div class="brand">
+        <div class="brand-mark"><img src="/assets/thryve-logo.jpg" alt="Thryve logo"></div>
+        <div><strong>THRYVE</strong><span>SECURITY OPERATIONS</span></div>
+        <button class="icon-button nav-close" id="navClose" type="button" aria-label="Close navigation">×</button>
+      </div>
+      <div class="scope-badge"><span class="status-dot good"></span><div><b>LOCAL ENDPOINT</b><small id="sideHost">Checking…</small></div></div>
+      <nav id="primaryNav">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">⌁</span><span>Overview</span><kbd>01</kbd></button>
+        <button class="nav-item" data-view="storyline"><span class="nav-icon">↳</span><span>Incident Trace</span><kbd>02</kbd></button>
+        <button class="nav-item" data-view="alerts"><span class="nav-icon">!</span><span>Alerts</span><em id="navAlertCount">—</em></button>
+        <button class="nav-item" data-view="events"><span class="nav-icon">≡</span><span>Events</span><kbd>04</kbd></button>
+        <button class="nav-item" data-view="processes"><span class="nav-icon">▤</span><span>Processes</span><kbd>05</kbd></button>
+        <button class="nav-item" data-view="network"><span class="nav-icon">⌘</span><span>Network</span><kbd>06</kbd></button>
+        <button class="nav-item" data-view="persistence"><span class="nav-icon">⟲</span><span>Persistence</span><kbd>07</kbd></button>
+        <button class="nav-item" data-view="investigations"><span class="nav-icon">⌕</span><span>Investigations</span><kbd>08</kbd></button>
+        <button class="nav-item" data-view="rules"><span class="nav-icon">◇</span><span>Detection Rules</span><kbd>09</kbd></button>
+        <button class="nav-item" data-view="settings"><span class="nav-icon">⚙</span><span>Settings</span><kbd>10</kbd></button>
+        <button class="nav-item" data-view="chat"><span class="nav-icon">◌</span><span>Analyst Chat</span><kbd>11</kbd></button>
+        <button class="nav-item" data-view="memory"><span class="nav-icon">▦</span><span>Memory Lab</span><kbd>12</kbd></button>
+        <button class="nav-item" data-view="forensics"><span class="nav-icon">⌬</span><span>Forensics Workbench</span><kbd>13</kbd></button>
+      </nav>
+      <div class="sidebar-foot">
+        <div><span>Engine</span><b id="engineVersion">v—</b></div>
+        <div><span>Binding</span><b class="mint">LOCAL ONLY</b></div>
+        <small class="owasp-credit">OWASP Amman Chapter · project build</small>
+      </div>
+    </aside>
+
+    <div class="scrim" id="scrim"></div>
+    <main id="workspace" class="workspace">
+      <header class="topbar">
+        <button class="icon-button menu-button" id="menuButton" type="button" aria-label="Open navigation">☰</button>
+        <div class="breadcrumb"><span>Workstation</span><b>/</b><strong id="viewCrumb">Overview</strong></div>
+        <div class="top-actions">
+          <span class="demo-badge hidden" id="demoBadge">OWASP AMMAN DEMO</span>
+          <button class="privacy-toggle" id="privacyToggle" type="button" aria-pressed="false"><span>▣</span><b>Privacy Shield</b><small>OFF</small></button>
+          <button class="quiet-button" id="globalSearchButton" type="button"><span>⌕</span> IOC Search <kbd>Ctrl K</kbd></button>
+          <span class="clock mono" id="clock">--:--:--</span>
+        </div>
+      </header>
+
+      <section class="pulse-band" aria-label="Threat posture summary">
+        <div class="risk-block">
+          <div class="risk-ring" id="riskRing"><span id="riskScore">—</span><small>/100</small></div>
+          <div><span class="eyebrow">RISK SCORE</span><strong id="riskLabel">Calculating risk</strong><small id="lastScan">Last collection: —</small></div>
+        </div>
+        <div class="pulse-chart" aria-label="Threat level trend">
+          <div class="scan-line"></div>
+          <div class="spark-bars" id="sparkBars" aria-hidden="true"></div>
+          <span>Last 12 collection runs</span>
+        </div>
+        <div class="pulse-stat"><span>Host</span><strong class="mono sensitive-host" id="hostName">—</strong><small id="hostOs">Windows</small></div>
+        <div class="pulse-stat"><span>Collector</span><strong id="collectorState"><i class="status-dot"></i> Checking…</strong><small id="ingestionState">INGESTION —</small></div>
+        <div class="pulse-stat"><span>Events / Alerts</span><strong class="mono"><span id="pulseEvents">—</span> / <span id="pulseAlerts">—</span></strong><small>Local total</small></div>
+        <button class="collect-button" id="fullCollect" type="button" data-collection="full"><span class="button-icon">↓</span><span><b>Full Collection</b><small>ALL COLLECTORS</small></span></button>
+      </section>
+
+      <div class="notice hidden" id="apiNotice" role="alert"><span>!</span><div><b>Thryve engine is unreachable</b><p id="apiNoticeText">Verify the local service is running, then retry.</p></div><button type="button" id="retryButton">Retry</button></div>
+
+      <section class="view active" id="view-overview" data-title="Overview">
+        <div class="view-heading"><div><span class="section-code">OVERVIEW / 01</span><h1>Security posture now</h1><p>Live summary of alerts, coverage, and endpoint activity.</p></div><div class="heading-actions"><button class="secondary-button" id="downloadReport" type="button">Download PDF report</button><span class="live-indicator"><i></i> LIVE TELEMETRY</span></div></div>
+
+        <div class="kpi-strip" id="kpiStrip">
+          <article class="kpi critical"><span>Critical / High</span><strong id="kpiCritical">—</strong><small>alerts requiring review</small></article>
+          <article class="kpi"><span>Ingested events</span><strong id="kpiEvents">—</strong><small id="kpiEventsDelta">in the local database</small></article>
+          <article class="kpi warning"><span>Suspicious processes</span><strong id="kpiProcesses">—</strong><small>anomalous behavior</small></article>
+          <article class="kpi"><span>Active connections</span><strong id="kpiConnections">—</strong><small>observed destinations</small></article>
+        </div>
+
+        <div class="overview-grid">
+          <section class="panel alert-panel">
+            <header class="panel-head"><div><span class="panel-index">01</span><h2>Alert queue</h2></div><button class="text-button" type="button" data-go="alerts">View all →</button></header>
+            <div class="table-wrap compact"><table><thead><tr><th>Severity</th><th>Alert</th><th>Source</th><th>MITRE</th><th>Time</th><th>Status</th></tr></thead><tbody id="recentAlerts"><tr><td colspan="6"><div class="loading-row"><i></i> Loading alerts…</div></td></tr></tbody></table></div>
+          </section>
+
+          <section class="panel health-panel">
+            <header class="panel-head"><div><span class="panel-index">02</span><h2>Collector coverage</h2></div><span class="mini-status" id="coverageStatus">—</span></header>
+            <div class="coverage-score"><div><strong id="coverageScore">—</strong><span>%</span></div><p>active telemetry sources</p></div>
+            <div class="source-list" id="sourceList"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>
+          </section>
+
+          <section class="panel volume-panel">
+            <header class="panel-head"><div><span class="panel-index">03</span><h2>Event volume</h2></div><span class="mono muted" id="eventRate">— evt/min</span></header>
+            <canvas id="eventChart" height="190" role="img" aria-label="Event volume over time"></canvas>
+            <div class="chart-axis"><span>-60m</span><span>-45m</span><span>-30m</span><span>-15m</span><span>Now</span></div>
+          </section>
+
+          <section class="panel actions-panel">
+            <header class="panel-head"><div><span class="panel-index">04</span><h2>Quick DFIR actions</h2></div><span class="muted">Safe local execution</span></header>
+            <div class="action-grid">
+              <button type="button" data-collection="full"><span>↓</span><b>Full collection</b><small>All supported evidence</small></button>
+              <button type="button" data-collection="processes"><span>▤</span><b>Process snapshot</b><small>Process tree & commands</small></button>
+              <button type="button" data-collection="network"><span>⌘</span><b>Network capture</b><small>Connections & DNS</small></button>
+              <button type="button" data-collection="persistence"><span>⟲</span><b>Persistence</b><small>Autoruns & services</small></button>
+              <button type="button" data-collection="events"><span>≡</span><b>Windows logs</b><small>Security event logs</small></button>
+              <button type="button" id="quickCase"><span>＋</span><b>Create case</b><small>Preserve investigation scope</small></button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+        <section class="view" id="view-storyline" data-title="Incident Trace">
+        <div class="view-heading"><div><span class="section-code">INCIDENT TRACE / 02</span><h1>Review the evidence trail</h1><p>Trace the alert through its linked telemetry and detection context.</p></div><span class="live-indicator"><i></i> EVIDENCE-BASED</span></div>
+        <section class="panel storyline-panel"><header class="panel-head"><div><span class="panel-index">ALERT</span><h2>Evidence trace</h2></div><select id="storyAlertSelect" aria-label="Select an alert for evidence trace"><option>Loading alerts…</option></select></header><div id="storylineContent"><div class="loading-row"><i></i> Loading linked evidence…</div></div></section>
+      </section>
+      <section class="view" id="view-alerts" data-title="Alerts"></section>
+      <section class="view" id="view-events" data-title="Events"></section>
+      <section class="view" id="view-processes" data-title="Processes"></section>
+      <section class="view" id="view-network" data-title="Network"></section>
+      <section class="view" id="view-persistence" data-title="Persistence"></section>
+      <section class="view" id="view-rules" data-title="Detection Rules"></section>
+
+      <section class="view" id="view-investigations" data-title="Investigations">
+        <div class="view-heading"><div><span class="section-code">INVESTIGATION / 08</span><h1>Investigation workspace</h1><p>Link evidence, search IOCs, and export a case package.</p></div><button class="primary-button" type="button" id="newCase">＋ New case</button></div>
+        <div class="investigation-layout">
+          <section class="panel ioc-panel">
+            <header class="panel-head"><div><span class="panel-index">IOC</span><h2>Cross-source search</h2></div></header>
+            <form class="ioc-search" id="iocForm"><label for="iocInput">IP, domain, hash, process name, or Event ID</label><div><input id="iocInput" name="q" autocomplete="off" placeholder="192.0.2.10 / sha256 / powershell.exe"><button type="submit">Search</button></div></form>
+            <div id="iocResults" class="search-results"><div class="empty-state small"><span>⌕</span><b>Start with one indicator</b><p>Thryve will search every local telemetry source.</p></div></div>
+          </section>
+          <section class="panel cases-panel">
+            <header class="panel-head"><div><span class="panel-index">CASE</span><h2>Saved cases</h2></div><button class="text-button" type="button" id="refreshCases">Refresh</button></header>
+            <div id="caseList"><div class="loading-row"><i></i> Loading cases…</div></div>
+          </section>
+          <section class="panel timeline-panel">
+            <header class="panel-head"><div><span class="panel-index">TIME</span><h2>Evidence timeline</h2></div><span class="muted">Newest first</span></header>
+            <ol class="timeline" id="evidenceTimeline"><li class="empty-timeline">Select a case to view its evidence and notes.</li></ol>
+          </section>
+          <section class="panel notes-panel">
+            <header class="panel-head"><div><span class="panel-index">NOTE</span><h2>Analyst notes</h2></div></header>
+            <textarea id="caseNotes" rows="7" placeholder="Record hypotheses, triage findings, and response steps…" disabled></textarea>
+            <div class="notes-foot"><span id="notesState">No case selected</span><button class="primary-button" id="saveNotes" type="button" disabled>Save note</button></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-settings" data-title="Settings">
+        <div class="view-heading"><div><span class="section-code">SETTINGS / 10</span><h1>Local configuration</h1><p>Safe collection limits and transparent evidence storage.</p></div></div>
+        <div class="settings-layout">
+          <section class="panel setting-panel"><header class="panel-head"><div><span class="panel-index">NET</span><h2>Service binding</h2></div><span class="severity low">LOCAL ONLY</span></header><div class="setting-row"><div><b>Listen address</b><p>Loopback binding blocks network access.</p></div><code id="bindAddress">127.0.0.1</code></div><div class="setting-row"><div><b>Transport mode</b><p>Telemetry and evidence never leave this device.</p></div><span class="check-label">✓ Local & safe</span></div></section>
+          <section class="panel setting-panel"><header class="panel-head"><div><span class="panel-index">CAP</span><h2>Collection limits</h2></div></header><div class="setting-row"><label for="rowLimit"><b>Rows per view</b><small>Browser display limit only</small></label><select id="rowLimit"><option>25</option><option selected>50</option><option>100</option></select></div><div class="setting-row"><label for="autoRefresh"><b>Auto refresh</b><small>Never starts a new collection</small></label><select id="autoRefresh"><option value="0">Off</option><option value="30">Every 30 seconds</option><option value="60" selected>Every minute</option><option value="300">Every 5 minutes</option></select></div></section>
+          <section class="panel setting-panel"><header class="panel-head"><div><span class="panel-index">DATA</span><h2>Data status</h2></div></header><div class="setting-row"><div><b>Last sync</b><p id="settingsLastSync">—</p></div><button class="secondary-button" id="purgeViewCache" type="button">Clear view cache</button></div><div class="setting-row"><div><b>Evidence path</b><p class="mono" id="evidencePath">Local / managed by engine</p></div></div></section>
+        </div>
+      </section>
+      <section class="view" id="view-memory" data-title="Memory Lab">
+        <div class="view-heading"><div><span class="section-code">MEMORY FORENSICS / 12</span><h1>Memory Lab</h1><p>Optional Volatility 3 analysis for a local Windows memory image.</p></div><span class="live-indicator"><i></i> LOCAL ANALYSIS</span></div>
+        <section class="panel memory-panel"><header class="panel-head"><div><span class="panel-index">VOL3</span><h2>Run a bounded forensic plugin</h2></div><span id="memoryAvailability" class="muted">Checking Volatility…</span></header><div class="memory-form"><label>Memory image path<input id="memoryImagePath" dir="ltr" placeholder="C:\\Evidence\\memory.raw"></label><label>Plugin<select id="memoryPlugin"><option value="windows.pslist">Process listing</option><option value="windows.pstree">Process tree</option><option value="windows.netscan">Network sockets</option><option value="windows.cmdline">Process command lines</option><option value="windows.dlllist">Loaded modules</option><option value="windows.registry.hivelist">Registry hives</option><option value="windows.malfind">Executable memory regions</option></select></label><button class="primary-button" id="runMemory" type="button">Run analysis</button></div><pre id="memoryOutput" class="memory-output">Results will appear here. Thryve never fabricates memory evidence.</pre></section>
+      </section>
+
+      <section class="view" id="view-chat" data-title="Analyst Chat">
+        <div class="view-heading"><div><span class="section-code">ANALYST CHAT / 11</span><h1>Ask about this endpoint</h1><p>Gemini receives a bounded endpoint summary, your question, and only the files you choose to attach.</p></div><span class="live-indicator"><i></i> EXTERNAL ANALYSIS</span></div>
+        <section class="panel chat-workspace">
+          <aside class="chat-rail" aria-label="Local conversation history">
+            <button class="new-chat-button" id="newChat" type="button"><span>+</span> New chat</button>
+            <label class="chat-search" for="chatThreadSearch"><span>⌕</span><input id="chatThreadSearch" type="search" placeholder="Search local history"></label>
+            <div class="chat-thread-list" id="chatThreadList" aria-live="polite"></div>
+            <p class="chat-local-note"><b>LOCAL HISTORY</b> Threads stay in this browser. Selected attachments are never retained here.</p>
+          </aside>
+          <section class="chat-panel" aria-label="Active analyst conversation">
+            <header class="panel-head chat-panel-head"><div><span class="panel-index">THREAD</span><h2 id="chatThreadTitle">New investigation</h2></div><div class="chat-thread-actions"><button class="text-button" id="renameChat" type="button">Rename</button><button class="text-button danger-button" id="deleteChat" type="button">Delete</button></div></header>
+            <p class="chat-context-line" id="chatContextLine">Context: ready for a new endpoint investigation</p>
+            <div id="chatMessages" class="chat-messages" aria-live="polite"></div>
+            <form id="chatForm" class="chat-composer"><div id="chatAttachments" class="chat-attachments" aria-live="polite"></div><textarea id="chatPrompt" rows="3" maxlength="4000" placeholder="Example: What should I validate first for the latest high-severity alert?"></textarea><div class="chat-actions"><label class="file-picker"><input id="chatFiles" type="file" multiple accept="image/*,.txt,.log,.json,.csv,.md,.xml,.yml,.yaml,.pdf,.ps1,.py,.js,.html">Attach files or images</label><small>Up to 4 files, 6 MB total. Never attach credentials or confidential material without approval.</small><button class="primary-button" id="chatSend" type="submit">Send to Gemini</button></div></form>
+          </section>
+        </section>
+      </section>
+      <section class="view" id="view-forensics" data-title="Forensics Workbench">
+        <div class="view-heading"><div><span class="section-code">DFIR TOOL REGISTRY / 13</span><h1>Forensics Workbench</h1><p>Local evidence analysis and verified tool availability.</p></div></div>
+        <div class="forensics-layout"><section class="panel"><header class="panel-head"><div><span class="panel-index">TOOLS</span><h2>Tool readiness</h2></div></header><div id="forensicTools" class="tool-list"><div class="loading-row"><i></i> Checking local toolchain…</div></div></section><section class="panel"><header class="panel-head"><div><span class="panel-index">TRIAGE</span><h2>File artifact triage</h2></div></header><div class="memory-form"><label>Artifact path<input id="artifactPath" dir="ltr" placeholder="C:\\Evidence\\sample.exe"></label><button class="primary-button" id="runArtifactTriage" type="button">Inspect artifact</button><button class="secondary-button" id="runYaraScan" type="button">YARA quick scan</button></div><pre id="artifactOutput" class="memory-output">SHA-256, entropy, printable strings, PE metadata, and YARA findings will appear here.</pre></section></div>
+      </section>
+    </main>
+  </div>
+
+  <aside class="detail-drawer" id="detailDrawer" aria-hidden="true" aria-labelledby="drawerTitle">
+    <header><div><span class="section-code" id="drawerType">DETAIL</span><h2 id="drawerTitle">Record details</h2></div><button class="icon-button" id="drawerClose" type="button" aria-label="Close details">×</button></header>
+    <div class="drawer-content" id="drawerContent"></div>
+    <footer><button class="secondary-button" id="copyJson" type="button">Copy JSON</button><button class="primary-button" id="addToCase" type="button">Add to case</button></footer>
+  </aside>
+  <div class="drawer-scrim" id="drawerScrim"></div>
+
+  <dialog id="caseDialog">
+    <form method="dialog" id="caseForm">
+      <header><div><span class="section-code">NEW CASE</span><h2>Create investigation case</h2></div><button class="icon-button" value="cancel" aria-label="Close">×</button></header>
+      <label>Case name<input id="caseName" name="name" required maxlength="100" placeholder="Example: Unusual PowerShell activity"></label>
+      <label>Description<textarea id="caseDescription" name="description" rows="4" placeholder="Initial scope and investigation context…"></textarea></label>
+      <div class="dialog-actions"><button class="secondary-button" value="cancel">Cancel</button><button class="primary-button" id="createCaseSubmit" value="default">Create</button></div>
+    </form>
+  </dialog>
+
+  <div class="command-palette" id="commandPalette" aria-hidden="true">
+    <div class="command-box"><header><span>⌕</span><input id="commandInput" aria-label="Quick search" placeholder="Search an IOC or open a view…" autocomplete="off"><kbd>ESC</kbd></header><div id="commandResults"><button data-command-view="alerts"><span>!</span><b>Open alerts</b><small>VIEW</small></button><button data-command-view="events"><span>≡</span><b>Open events</b><small>VIEW</small></button><button data-command-view="investigations"><span>⌕</span><b>Search IOC in investigations</b><small>SEARCH</small></button></div></div>
+  </div>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>
